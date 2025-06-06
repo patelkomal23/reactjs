@@ -1,0 +1,34 @@
+{
+  "products": [
+    {
+      "id": "3",
+      "title": "amchaska",
+      "views": 5
+    },
+    {
+      "id": "4",
+      "title": "organic bananas",
+      "views": 220
+    },
+    {
+      "id": "5",
+      "title": "juicy mangoes",
+      "views": 180
+    },
+    {
+      "id": "6",
+      "title": "ripe oranges",
+      "views": 130
+    },
+    {
+      "id": "7",
+      "title": "k title",
+      "views": 100
+    },
+    {
+      "id": "8",
+      "title": "oil",
+      "views": 500
+    }
+  ]
+}

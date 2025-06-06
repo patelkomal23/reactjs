@@ -1,99 +1,332 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from "react";
 
-const App = () => {
+function App() {
   const [user, setUser] = useState({});
-  const [list, setList] = useState([])
+  const [list, setList] = useState([]);
+  const [editUser, setEditUser] = useState({});
+  const [editId, setEditId] = useState(null);
+  const [hobby, setHobby] = useState([]);
+  const [editHobby, seteditHobby] = useState([]);
+
+  // const editRef = useRef();
+
+  useEffect(() => {
+    let oldList = JSON.parse(localStorage.getItem("users")) || [];
+    setList(oldList);
+  }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    let newUser = { ...user, [name]: value }
-    setUser(newUser);
-  }
+    let { name, value, checked } = e.target;
+
+    if (name == "hobby") {
+      let newHobby;
+      if(!editId){
+        newHobby = [...hobby];
+      }
+      else{
+        newHobby = [...editHobby];
+      }
+      if (checked) {
+        newHobby.push(value);
+      } else {
+        newHobby = newHobby.filter((item) => item != value);
+      }
+      if(!editId){
+        setHobby(newHobby);
+      }
+      else{
+        seteditHobby(newHobby);
+      }
+      value = newHobby;
+    }
+
+    if (editId != null) {
+      let newUser = { ...editUser, [name]: value };
+      setEditUser(newUser);
+    } else {
+      let newUser = { ...user, [name]: value };
+      setUser(newUser);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newUser = { ...user, id: Date.now() };
-    setList([...list, newUser]);
+    const newList = [...list, { ...user, id: Date.now() }];
+    console.log(user);
     setUser({});
-    console.log(newUser);
+    setHobby([]);
+    localStorage.setItem("users", JSON.stringify(newList));
+    setList(newList);
   };
+
   const handleDelete = (id) => {
-    const filteredList = list.filter((user) => user.id !== id);
-    setList(filteredList);
-  }
+    let newList = list.filter((item) => item.id !== id);
+    localStorage.setItem("users", JSON.stringify(newList));
+    setList(newList);
+  };
+
+  const handleEdit = (id) => {
+    let editUser = list.filter((val) => val.id === id)[0];
+    setEditUser(editUser);
+    setEditId(id);
+    // console.log(editUser.hobby);
+    
+    seteditHobby(editUser.hobby)
+  };
+
+  const handleSave = (id) => {
+    let newList = list.map((val) => {
+      if (editId === val.id) {
+        val = editUser;
+      }
+      return val;
+    });
+    setList(newList);
+    localStorage.setItem("users", JSON.stringify(newList));
+    setEditId(null);
+  };
+  console.log(user);
 
   return (
     <>
       <div className="container">
-        <div className="row">
+        <div className="row mt-3">
           <div className="col-md-6 mx-auto">
-            <form method='post' onSubmit={handleSubmit}>
-              <h2>Sign-up</h2>
+            <form method="post" onSubmit={handleSubmit}>
+              <h2>Login</h2>
               <div className="mb-3">
-                <label htmlFor="Username" className="form-label">Username</label>
-                <input type="text"
-                  onChange={handleChange}
+                <label htmlFor="exampleInputEmail1" className="form-label">
+                  Email address
+                </label>
+                <input
+                  type="email"
                   className="form-control"
-                  id="username"
-                  name='username'
-                  value={user.username || ""} />
+                  id="exampleInputEmail1"
+                  aria-describedby="emailHelp"
+                  name="email"
+                  value={user.email || ""}
+                  onChange={handleChange}
+                />
+                <div id="emailHelp" className="form-text">
+                  We'll never share your email with anyone else.
+                </div>
               </div>
-
               <div className="mb-3">
-                <label htmlFor="email" className="form-label">Email</label>
-                <input type="email"
-                  onChange={handleChange}
+                <label htmlFor="exampleInputPassword1" className="form-label">
+                  Password
+                </label>
+                <input
+                  type="password"
                   className="form-control"
-                  id="email"
-                  name='email'
-                  value={user.email || ""} />
+                  id="exampleInputPassword1"
+                  name="password"
+                  value={user.password || ""}
+                  onChange={handleChange}
+                />
               </div>
-
               <div className="mb-3">
-                <label htmlFor="password" className="form-label">Password</label>
-                <input type="text"
-                  onChange={handleChange}
-                  className="form-control"
-                  id="password"
-                  name='password'
-                  value={user.password || ""} />
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="inlineCheckbox1"
+                    defaultValue="option1"
+                    name="hobby"
+                    value="reading"
+                    onChange={handleChange}
+                    checked={hobby.includes("reading") ? true : false}
+                  />
+                  <label className="form-check-label" htmlFor="inlineCheckbox1">
+                    Reading
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="inlineCheckbox2"
+                    defaultValue="option2"
+                    name="hobby"
+                    value="swimming"
+                    onChange={handleChange}
+                    checked={hobby.includes("swimming") ? true : false}
+                  />
+                  <label className="form-check-label" htmlFor="inlineCheckbox2">
+                    swimming
+                  </label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="inlineCheckbox3"
+                    defaultValue="option2"
+                    name="hobby"
+                    value="dancing"
+                    onChange={handleChange}
+                    checked={hobby.includes("dancing") ? true : false}
+                  />
+                  <label className="form-check-label" htmlFor="inlineCheckbox2">
+                    Dancing
+                  </label>
+                </div>
               </div>
-              <button type="submit" className="btn btn-primary">Submit</button>
+              <button type="submit" className="btn btn-primary">
+                Submit
+              </button>
             </form>
           </div>
-          <table className="table table-bordered mt-5">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Password</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                list.map((user, idx) => {
+        </div>
+        <div className="row">
+          <div className="col-md-8 mx-auto">
+            <table className="table caption-top mt-3">
+              <caption>
+                <h2>Users data</h2>
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Password</th>
+                  <th scope="col">Hobby</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.map((val, idx) => {
+                  const { id, email, password, hobby } = val;
                   return (
                     <tr key={idx}>
-                      <td>{idx + 1}</td>
-                      <td>{user.username}</td>
-                      <td>{user.email}</td>
-                      <td>{user.password}</td>
+                      <th scope="row">{idx + 1}</th>
                       <td>
-                      <button className='btn btn-danger me-2' onClick={() => handleDelete(user.id)}>Delete</button>
-                      <button className='btn btn-warning'>Edit</button>
+                        {editId !== val.id ? (
+                          email
+                        ) : (
+                          <input
+                            type="text"
+                            name="email"
+                            value={editUser.email || ""}
+                            onChange={handleChange}
+                            id=""
+                            className="form-control"
+                          />
+                        )}
+                      </td>
+                      <td>
+                        {editId !== val.id ? (
+                          password
+                        ) : (
+                          <input
+                            type="text"
+                            name="password"
+                            value={editUser.password || ""}
+                            onChange={handleChange}
+                            id=""
+                            className="form-control"
+                          />
+                        )}
+                      </td>
+                      <td>
+                        {editId !== val.id ? (
+                          hobby.toLocaleString()
+                        ) : (
+                          <>
+                            <div className="form-check form-check-inline">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id="inlineCheckbox1"
+                                defaultValue="option1"
+                                name="hobby"
+                                value="reading"
+                                onChange={handleChange}
+                                checked={
+                                  editHobby.includes("reading") ? true : false
+                                }
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="inlineCheckbox1"
+                              >
+                                Reading
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id="inlineCheckbox2"
+                                defaultValue="option2"
+                                name="hobby"
+                                value="swimming"
+                                onChange={handleChange}
+                                checked={
+                                  editHobby.includes("swimming") ? true : false
+                                }
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="inlineCheckbox2"
+                              >
+                                swimming
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id="inlineCheckbox3"
+                                defaultValue="option2"
+                                name="hobby"
+                                value="dancing"
+                                onChange={handleChange}
+                                checked={
+                                editHobby.includes("dancing") ? true : false
+                                }
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="inlineCheckbox2"
+                              >
+                                Dancing
+                              </label>
+                            </div>
+                          </>
+                        )}
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleDelete(id)}
+                        >
+                          Delete
+                        </button>{" "}
+                        {editId === id ? (
+                          <button
+                            onClick={() => handleSave(id)}
+                            className="btn btn-success"
+                          >
+                            Save
+                          </button>
+                        ) : (
+                          <button
+                            className="btn btn-warning"
+                            onClick={() => handleEdit(id)}
+                          >
+                            Edit
+                          </button>
+                        )}
                       </td>
                     </tr>
-                  )
-                })
-              }
-            </tbody>
-          </table>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
