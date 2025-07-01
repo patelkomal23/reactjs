@@ -1,8 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createUser, deleteUser, fetchUser } from "./thunk";
+import { createUser, deleteUser, editUser, fetchUser } from "./thunk";
 
 const initialState = {
   user: [],
+    editUserData:{},
+    editIndex:-1,
   loading: false,
   error: null,
 };
@@ -23,6 +25,8 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.error.message;
     });
+
+
     builder.addCase(fetchUser.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -40,6 +44,8 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.error.message;
     });
+
+
     builder.addCase(deleteUser.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -52,6 +58,25 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.error.message;
     });
+
+    //edit
+         builder.addCase(editUser.pending,(state)=>{
+            state.loading = true;
+        })
+        builder.addCase(editUser.fulfilled,(state,action)=>{
+            state.loading = false;
+            state.user = state.user.map(user=>{
+                if(user.id === action.payload.id){
+                    return action.payload;
+                }
+                return user;
+            })
+        })
+        builder.addCase(editUser.rejected,(state,action)=>{
+            state.loading = false;
+            state.error = true;
+            state.errorMsg = action.payload;
+        })
   },
 });
 
